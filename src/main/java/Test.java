@@ -7,8 +7,12 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import jdk.nashorn.internal.runtime.regexp.joni.encoding.ObjPtr;
 
 public class Test extends Application {
 
@@ -22,28 +26,48 @@ public class Test extends Application {
 	public void start(final Stage primaryStage) {
 		primaryStage.setTitle("Hello World");
 		final Group root = new Group();
-		Scene scene = new Scene(root, 300, 250, Color.LIGHTGREEN);
+		Scene scene = new Scene(root, 300, 250, Color.BEIGE);
 
 		but = new MarioThemeFactory().getButton();
 
-		ObservableList<Option> options =
+		ObservableList<IThemeFactory> options =
 				FXCollections.observableArrayList(
-						Option.StarWars,
-						Option.Mario
+						new MarioThemeFactory(),
+						new StarWarsThemeFactory()
 				);
 
 		final ComboBox comboBox = new ComboBox(options);
+		comboBox.getSelectionModel().selectFirst();
 		comboBox.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent e) {
+			public void handle(ActionEvent event) {
 				root.getChildren().remove(but);
-				if(comboBox.getValue() == Option.Mario){
-					but = new MarioThemeFactory().getButton();
-				} else {
-					but = new StarWarsThemeFactory().getButton();
-				}
+				IThemeFactory selectedButton = (IThemeFactory) comboBox.getValue();
+				but = selectedButton.getButton();
 				root.getChildren().add(but);
 			}
 		});
+
+
+		comboBox.setCellFactory(new Callback<ListView<IThemeFactory>,ListCell<IThemeFactory>>(){
+			@Override
+			public ListCell<IThemeFactory> call(ListView<IThemeFactory> p) {
+				final ListCell<IThemeFactory> cell = new ListCell<IThemeFactory>(){
+					@Override
+					protected void updateItem(IThemeFactory item, boolean empty) {
+						super.updateItem(item, empty);
+						if (item == null || empty) {
+							setGraphic(null);
+						} else {
+							setAccessibleText(item.getName());
+							setText(item.getName());
+						}
+					}
+				};
+				return cell;
+			}
+		});
+
+
 
 
 		comboBox.setLayoutX(200);

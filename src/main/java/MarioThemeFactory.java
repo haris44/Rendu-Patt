@@ -5,8 +5,13 @@ import javafx.scene.control.Button;
  */
 public class MarioThemeFactory extends Button implements IThemeFactory{
 
+
 	public Button getButton() {
-		return new ButtonMario().createButton();
+		return new ButtonSizeDecorator(new ButtonAlertDecorator(new ButtonMario())).createButton();
+	}
+
+	public String getName() {
+		return "Mario";
 	}
 
 }
